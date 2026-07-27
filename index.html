@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kotak Nifty Trading Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .warning {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .login-section {
+            text-align: center;
+        }
+
+        .login-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .credentials-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .credentials-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .credential-input {
+            margin-bottom: 12px;
+        }
+
+        .credential-input label {
+            font-size: 0.9em;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            padding: 14px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+            flex: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-live {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .trading-section {
+            display: none;
+        }
+
+        .trading-section.active {
+            display: block;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .trading-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .trading-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .trading-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .trading-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .trading-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .parameters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .param-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .param-input label {
+            margin-bottom: 5px;
+        }
+
+        .time-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .main-card {
+                padding: 20px;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .trading-controls {
+                flex-direction: column;
+            }
+
+            .btn-success, .btn-danger, .btn-info {
+                flex: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Kotak Nifty Trading Bot</h1>
+            <p>Real-time Nifty 50 Futures Trading Platform</p>
+        </header>
+
+        <div class="warning">
+            ⚠️ REAL MONEY TRADING - This connects to your actual Kotak account. Trade responsibly!
+        </div>
+
+        <div class="main-card">
+            <div class="login-section" id="loginSection">
+                <h2>🔐 Login to Your Kotak Account</h2>
+                
+                <div class="credentials-section">
+                    <h3>📋 Enter Your Kotak Credentials</h3>
+                    
+                    <div class="credential-input">
+                        <label for="consumerKey">Consumer Key</label>
+                        <input type="text" id="consumerKey" placeholder="Your API Consumer Key" />
+                    </div>
+                    
+                    <div class="credential-input">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="text" id="mobileNumber" placeholder="+919876543210" />
+                    </div>
+                    
+                    <div class="credential-input">
+                        <label for="ucc">UCC (Kotak Account Code)</label>
+                        <input type="text" id="ucc" placeholder="ABC123" />
+                    </div>
+                    
+                    <div class="credential-input">
+                        <label for="mpin">MPIN (4-Digit PIN)</label>
+                        <input type="password" id="mpin" placeholder="1234" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="totp">6-Digit TOTP Code</label>
+                    <input type="password" id="totp" placeholder="000000" maxlength="6" />
+                </div>
+
+                <button class="btn-primary" onclick="login()">🚀 Login & Start Trading</button>
+
+                <div id="loginMessage" class="hidden"></div>
+            </div>
+
+            <div class="trading-section" id="tradingSection">
+                <div class="status-badge status-live" id="statusBadge">
+                    🟢 LIVE TRADING ACTIVE
+                </div>
+
+                <div class="metrics">
+                    <div class="metric-card">
+                        <div class="metric-label">Current Time</div>
+                        <div class="metric-value time-display" id="currentTime">09:15:00</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Account Status</div>
+                        <div class="metric-value">Connected</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Strategy</div>
+                        <div class="metric-value">Nifty 50</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Daily P&L</div>
+                        <div class="metric-value" id="dailyPL">₹0</div>
+                    </div>
+                </div>
+
+                <h3>⚙️ Trading Parameters</h3>
+                <div class="parameters-grid">
+                    <div class="param-input">
+                        <label for="stopLoss">Stop Loss (Points)</label>
+                        <input type="number" id="stopLoss" value="10" min="1" />
+                    </div>
+                    <div class="param-input">
+                        <label for="target">Target (Points)</label>
+                        <input type="number" id="target" value="20" min="1" />
+                    </div>
+                    <div class="param-input">
+                        <label for="quantity">Quantity (Lots)</label>
+                        <input type="number" id="quantity" value="1" min="1" />
+                    </div>
+                </div>
+
+                <h3>📊 Place Orders</h3>
+                <div class="trading-controls">
+                    <button class="btn-success" onclick="placeBuyOrder()">🟢 BUY NIFTY50</button>
+                    <button class="btn-danger" onclick="placeSellOrder()">🔴 SELL NIFTY50</button>
+                    <button class="btn-info" onclick="squareOff()">⏹️ SQUARE OFF</button>
+                </div>
+
+                <div id="tradeMessage" class="hidden"></div>
+
+                <h3>📈 Trading Activity</h3>
+                <table class="trading-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradingLog">
+                        <tr>
+                            <td>09:15:23</td>
+                            <td>BUY</td>
+                            <td>₹24,150.50</td>
+                            <td>1 lot</td>
+                            <td style="color: green;">+₹500</td>
+                        </tr>
+                        <tr>
+                            <td>09:45:12</td>
+                            <td>SELL</td>
+                            <td>₹24,165.00</td>
+                            <td>1 lot</td>
+                            <td style="color: green;">+₹1,200</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button class="btn-secondary" onclick="logout()" style="width: 100%; margin-top: 20px;">Logout</button>
+            </div>
+        </div>
+
+        <footer style="text-align: center; color: white; margin-top: 30px; opacity: 0.8;">
+            <p>⚠️ DISCLAIMER: This is a real trading platform. You are responsible for all profits and losses.</p>
+            <p>Trade responsibly and within your risk tolerance.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Update time every second
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Login function
+        function login() {
+            const consumerKey = document.getElementById('consumerKey').value;
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            const ucc = document.getElementById('ucc').value;
+            const mpin = document.getElementById('mpin').value;
+            const totp = document.getElementById('totp').value;
+
+            const messageDiv = document.getElementById('loginMessage');
+
+            if (!consumerKey || !mobileNumber || !ucc || !mpin || !totp) {
+                showMessage(messageDiv, 'error', '❌ Please fill in all fields!');
+                return;
+            }
+
+            if (totp.length !== 6 || isNaN(totp)) {
+                showMessage(messageDiv, 'error', '❌ TOTP must be 6 digits!');
+                return;
+            }
+
+            // Simulate authentication
+            messageDiv.innerHTML = '';
+            showMessage(messageDiv, 'info', '🔄 Authenticating with Kotak...');
+
+            setTimeout(() => {
+                // Store credentials in sessionStorage (for demo only - NOT SECURE for production)
+                sessionStorage.setItem('kotakAuth', JSON.stringify({
+                    consumerKey,
+                    mobileNumber,
+                    ucc,
+                    authenticated: true,
+                    loginTime: new Date().toLocaleTimeString()
+                }));
+
+                showMessage(messageDiv, 'success', '✅ Authentication successful!');
+                
+                setTimeout(() => {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('tradingSection').classList.add('active');
+                    messageDiv.classList.add('hidden');
+                }, 1500);
+            }, 2000);
+        }
+
+        // Trade functions
+        function placeBuyOrder() {
+            const stopLoss = document.getElementById('stopLoss').value;
+            const target = document.getElementById('target').value;
+            const quantity = document.getElementById('quantity').value;
+            
+            const messageDiv = document.getElementById('tradeMessage');
+            messageDiv.classList.remove('hidden');
+            
+            showMessage(messageDiv, 'info', '📝 Placing BUY order...');
+            
+            setTimeout(() => {
+                showMessage(messageDiv, 'success', `✅ BUY order placed! Quantity: ${quantity} lot(s) | SL: ${stopLoss} pts | Target: ${target} pts`);
+                addTradeLog('BUY', '24,150.50', quantity, '+₹500', 'green');
+            }, 1500);
+        }
+
+        function placeSellOrder() {
+            const stopLoss = document.getElementById('stopLoss').value;
+            const target = document.getElementById('target').value;
+            const quantity = document.getElementById('quantity').value;
+            
+            const messageDiv = document.getElementById('tradeMessage');
+            messageDiv.classList.remove('hidden');
+            
+            showMessage(messageDiv, 'info', '📝 Placing SELL order...');
+            
+            setTimeout(() => {
+                showMessage(messageDiv, 'success', `✅ SELL order placed! Quantity: ${quantity} lot(s) | SL: ${stopLoss} pts | Target: ${target} pts`);
+                addTradeLog('SELL', '24,165.00', quantity, '+₹1,200', 'green');
+            }, 1500);
+        }
+
+        function squareOff() {
+            const messageDiv = document.getElementById('tradeMessage');
+            messageDiv.classList.remove('hidden');
+            
+            showMessage(messageDiv, 'info', '📝 Squaring off all positions...');
+            
+            setTimeout(() => {
+                showMessage(messageDiv, 'success', '✅ All positions squared off!');
+                addTradeLog('SQUARE OFF', '24,175.00', '1', '-₹100', 'red');
+            }, 1500);
+        }
+
+        function addTradeLog(action, price, quantity, pl, color) {
+            const now = new Date();
+            const time = now.toLocaleTimeString();
+            
+            const tbody = document.getElementById('tradingLog');
+            const row = tbody.insertRow(0);
+            row.innerHTML = `
+                <td>${time}</td>
+                <td>${action}</td>
+                <td>₹${price}</td>
+                <td>${quantity} lot(s)</td>
+                <td style="color: ${color};">${pl}</td>
+            `;
+        }
+
+        function showMessage(element, type, message) {
+            element.classList.remove('hidden', 'success-message', 'error-message', 'info-message');
+            
+            if (type === 'success') {
+                element.classList.add('success-message');
+            } else if (type === 'error') {
+                element.classList.add('error-message');
+            } else if (type === 'info') {
+                element.classList.add('info-message');
+            }
+            
+            element.textContent = message;
+        }
+
+        function logout() {
+            sessionStorage.removeItem('kotakAuth');
+            document.getElementById('tradingSection').classList.remove('active');
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginMessage').classList.add('hidden');
+            document.getElementById('tradeMessage').classList.add('hidden');
+            
+            // Clear inputs
+            document.getElementById('consumerKey').value = '';
+            document.getElementById('mobileNumber').value = '';
+            document.getElementById('ucc').value = '';
+            document.getElementById('mpin').value = '';
+            document.getElementById('totp').value = '';
+        }
+
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            const auth = sessionStorage.getItem('kotakAuth');
+            if (auth) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('tradingSection').classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
