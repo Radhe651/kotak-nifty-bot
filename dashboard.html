@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Scalp Algo Bot - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            padding: 15px 0;
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .warning {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .login-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .credentials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .login-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .status-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .status-label {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .status-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e3c72;
+        }
+
+        .status-value.profit {
+            color: #28a745;
+        }
+
+        .status-value.loss {
+            color: #dc3545;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-label {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .trades-section {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .trades-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .trades-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+
+        .trades-table th {
+            background: #f0f0f0;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .trades-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .trades-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+
+        .badge-win {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-loss {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .time-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1e3c72;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.4em;
+            }
+
+            .credentials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Micro-Scalp Algo Bot</h1>
+            <p>Real-time Trading Dashboard</p>
+        </header>
+
+        <div class="warning">
+            ⚠️ AUTOMATED TRADING - This bot trades automatically. Monitor regularly!
+        </div>
+
+        <!-- LOGIN SECTION -->
+        <div class="login-section" id="loginSection">
+            <h2>🔐 Connect to Kotak Account</h2>
+            
+            <div id="loginMessage" class="message"></div>
+
+            <div class="credentials-grid">
+                <div class="form-group">
+                    <label>Consumer Key</label>
+                    <input type="text" id="consumerKey" placeholder="API Key">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="mobileNumber" placeholder="+919876543210">
+                </div>
+                <div class="form-group">
+                    <label>UCC</label>
+                    <input type="text" id="ucc" placeholder="ABC123">
+                </div>
+                <div class="form-group">
+                    <label>MPIN</label>
+                    <input type="password" id="mpin" placeholder="1234">
+                </div>
+                <div class="form-group">
+                    <label>TOTP (6-digit)</label>
+                    <input type="password" id="totp" placeholder="000000" maxlength="6">
+                </div>
+            </div>
+
+            <div class="login-buttons">
+                <button class="btn-primary" onclick="login()">🚀 Login</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD SECTION -->
+        <div class="dashboard" id="dashboard">
+            
+            <!-- STATUS BAR -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-label">Status</div>
+                    <div class="status-value"><span class="live-indicator"></span><span id="tradingStatus">Stopped</span></div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Current Time</div>
+                    <div class="time-display" id="currentTime">00:00:00</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Balance</div>
+                    <div class="status-value" id="balance">₹15,000</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Net Profit</div>
+                    <div class="status-value profit" id="netProfit">₹0</div>
+                </div>
+            </div>
+
+            <!-- METRICS -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Today's Profit</div>
+                    <div class="metric-value" id="dayProfit">₹0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Today's Loss</div>
+                    <div class="metric-value" id="dayLoss">₹0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Trades Executed</div>
+                    <div class="metric-value" id="tradesExecuted">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Win Rate</div>
+                    <div class="metric-value" id="winRate">0%</div>
+                </div>
+            </div>
+
+            <!-- CONTROLS -->
+            <div id="dashboardMessage" class="message"></div>
+
+            <div class="controls">
+                <button class="btn-success" onclick="startTrading()" id="startBtn">▶️ Start Trading</button>
+                <button class="btn-danger" onclick="stopTrading()" id="stopBtn" style="display: none;">⏹️ Stop Trading</button>
+                <button class="btn-info" onclick="logout()" style="flex: 1; min-width: 100px;">🚪 Logout</button>
+            </div>
+
+            <!-- TRADES TABLE -->
+            <div class="trades-section">
+                <h3>📊 Recent Trades</h3>
+                <div style="overflow-x: auto;">
+                    <table class="trades-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Index</th>
+                                <th>Action</th>
+                                <th>Entry</th>
+                                <th>Exit</th>
+                                <th>P&L</th>
+                                <th>Hold</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; color: #999;">No trades yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+            const hours = String(istTime.getHours()).padStart(2, '0');
+            const minutes = String(istTime.getMinutes()).padStart(2, '0');
+            const seconds = String(istTime.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        async function login() {
+            const consumerKey = document.getElementById('consumerKey').value;
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            const ucc = document.getElementById('ucc').value;
+            const mpin = document.getElementById('mpin').value;
+            const totp = document.getElementById('totp').value;
+
+            const messageDiv = document.getElementById('loginMessage');
+
+            if (!consumerKey || !mobileNumber || !ucc || !mpin || !totp) {
+                showMessage(messageDiv, 'error', '❌ Fill all fields!');
+                return;
+            }
+
+            if (totp.length !== 6) {
+                showMessage(messageDiv, 'error', '❌ TOTP must be 6 digits!');
+                return;
+            }
+
+            showMessage(messageDiv, 'info', '🔄 Authenticating...');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ consumerKey, mobileNumber, ucc, mpin, totp })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(messageDiv, 'success', '✅ Authenticated!');
+                    setTimeout(() => {
+                        document.getElementById('loginSection').style.display = 'none';
+                        document.getElementById('dashboard').classList.add('active');
+                        startStatusPolling();
+                    }, 1000);
+                } else {
+                    showMessage(messageDiv, 'error', '❌ ' + data.message);
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'error', '❌ Connection error');
+            }
+        }
+
+        async function startTrading() {
+            const messageDiv = document.getElementById('dashboardMessage');
+            showMessage(messageDiv, 'info', '🚀 Starting trading...');
+
+            try {
+                const response = await fetch('/api/start-trading', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('tradingStatus').textContent = 'LIVE';
+                    document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('stopBtn').style.display = 'inline-block';
+                    showMessage(messageDiv, 'success', '✅ Trading started!');
+                    startTradePolling();
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'error', '❌ Error: ' + error.message);
+            }
+        }
+
+        async function stopTrading() {
+            try {
+                await fetch('/api/stop-trading', { method: 'POST' });
+                document.getElementById('tradingStatus').textContent = 'Stopped';
+                document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('stopBtn').style.display = 'none';
+                showMessage(document.getElementById('dashboardMessage'), 'info', '⏹️ Trading stopped.');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function startStatusPolling() {
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/api/status');
+                    const data = await response.json();
+
+                    document.getElementById('balance').textContent = '₹' + data.currentBalance.toLocaleString();
+                    document.getElementById('dayProfit').textContent = '₹' + data.dayProfit.toLocaleString();
+                    document.getElementById('dayLoss').textContent = '₹' + data.dayLoss.toLocaleString();
+                    document.getElementById('netProfit').textContent = '₹' + data.netProfit.toLocaleString();
+                    document.getElementById('tradesExecuted').textContent = data.tradesExecuted;
+                    document.getElementById('winRate').textContent = data.winRate + '%';
+
+                    if (data.netProfit < 0) {
+                        document.getElementById('netProfit').className = 'status-value loss';
+                    } else {
+                        document.getElementById('netProfit').className = 'status-value profit';
+                    }
+                } catch (error) {
+                    console.error('Status error:', error);
+                }
+            }, 2000);
+        }
+
+        function startTradePolling() {
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/api/trades?limit=20');
+                    const trades = await response.json();
+
+                    const tbody = document.getElementById('tradesBody');
+                    tbody.innerHTML = '';
+
+                    if (trades.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #999;">No trades yet</td></tr>';
+                        return;
+                    }
+
+                    trades.forEach(trade => {
+                        const row = tbody.insertRow(0);
+                        row.innerHTML = `
+                            <td>${trade.id}</td>
+                            <td>${trade.entryTime}</td>
+                            <td>${trade.index}</td>
+                            <td>${trade.direction}</td>
+                            <td>₹${trade.entryPrice.toFixed(2)}</td>
+                            <td>₹${trade.exitPrice.toFixed(2)}</td>
+                            <td><span class="badge ${trade.status === 'WIN' ? 'badge-win' : 'badge-loss'}">₹${trade.profit}</span></td>
+                            <td>${trade.holdTime.toFixed(1)}s</td>
+                        `;
+                    });
+                } catch (error) {
+                    console.error('Trade error:', error);
+                }
+            }, 1000);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('dashboard').classList.remove('active');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function showMessage(element, type, message) {
+            element.classList.remove('success', 'error', 'info');
+            element.classList.add(type, 'show');
+            element.textContent = message;
+            
+            if (type === 'success') {
+                setTimeout(() => element.classList.remove('show'), 3000);
+            }
+        }
+    </script>
+</body>
+</html>
